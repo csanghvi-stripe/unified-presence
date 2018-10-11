@@ -1,9 +1,9 @@
-We are going to sue three redis data store:
+We are going to use three redis data store:
 
-Namespace: slackapp:store:teams key=team.id value=teamObj
-           slackapp:store:users key=user.id value=UserInfo (that includes access token)
-Namespace: slackapp:userstore:users key=user.email value=UserObj
-Namespace: calendar:<email> key1=meetingid, value1=CalendarObj,key2=value2, key3=value3...
+-  *Namespace*: slackapp:store:teams key=team.id value=teamObj <br/>. 
+               slackapp:store:users key=user.id value=UserInfo (that includes access token)
+- *Namespace*: slackapp:userstore:users key=user.email value=UserObj
+- *Namespace*: calendar:<email> key1=meetingid, value1=CalendarObj,key2=value2, key3=value3...
 ```
 UserObj = {
   id,
@@ -34,8 +34,8 @@ slackapp.setCalendar(useremail,calendarObj,function(err,result){
 ```
 
 An example of accessing a users calendar is below:
-ns = NameSpace  = "calendar:<email>""
-key = Meeting ID. Currently, defaulting all meeting IDs to be 123. We can change it to be the startTime (But if multiple meetings start at same tme, it will result in collision)
+>ns = NameSpace  = "calendar:<email>""
+>key = Meeting ID. Currently, defaulting all meeting IDs to be 123. We can change it to be the startTime (But if multiple meetings start at same tme, it will result in collision)
 ```
 slackapp.getCalendar(ns, key, function(err, calendarObj) {
   if (err) {
