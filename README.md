@@ -1,12 +1,10 @@
-Initialize Slack App using signing secret from environment variables
-
 We are going to sue three redis data store:
 
 Namespace: slackapp:store:teams key=team.id value=teamObj
            slackapp:store:users key=user.id value=UserInfo (that includes access token)
 Namespace: slackapp:userstore:users key=user.email value=UserObj
 Namespace: calendar:<email> key1=meetingid, value1=CalendarObj,key2=value2, key3=value3...
-
+```
 UserObj = {
   id,
   email,
@@ -21,10 +19,11 @@ CalendarObj = {
   startTime,
   endTime
 }
-
+```
 Client Modules will be using "SlackApp" module to interface with Redis & Slack Web Client.
 
 An example usage of setCalendar API call for storing user calendar information is below:
+```
 slackapp.setCalendar(useremail,calendarObj,function(err,result){
   if(err){
     logger.error("Unable to set calenadr:"+err);
@@ -32,11 +31,12 @@ slackapp.setCalendar(useremail,calendarObj,function(err,result){
     logger.debug("Successfully set calendar event:"+ result);
   }
 });
+```
 
 An example of accessing a users calendar is below:
 ns = NameSpace  = "calendar:<email>""
 key = Meeting ID. Currently, defaulting all meeting IDs to be 123. We can change it to be the startTime (But if multiple meetings start at same tme, it will result in collision)
-
+```
 slackapp.getCalendar(ns, key, function(err, calendarObj) {
   if (err) {
     logger.debug("error is: ", err);
@@ -47,6 +47,7 @@ slackapp.getCalendar(ns, key, function(err, calendarObj) {
       var user_id;
       logger.debug("VALUE: ", calendarObj);
     });
+```
 
 UserObj is constructed at time of App installation on a WS. It relies on users.list() slack API method call.
 And it fetches list of all users on the workspace.
