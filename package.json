@@ -9,20 +9,17 @@
   "author": "csanghvi@slack-corp.com",
   "license": "ISC",
   "dependencies": {
-    "@aoberoi/passport-slack": "^1.0.5",
     "@slack/client": "^4.8.0",
     "@slack/events-api": "^2.1.1",
     "app-root-path": "^2.1.0",
-    "babel-polyfill": "^6.26.0",
+    "axios": "^0.18.0",
     "dotenv": "^6.0.0",
     "ioredis": "^4.0.1",
     "morgan": "^1.9.1",
-    "passport": "^0.4.0",
+    "qs": "^6.5.2",
     "redis": "^2.8.0",
+    "request": "^2.88.0",
     "winston": "^3.1.0"
   },
-  "devDependencies": {
-    "babel-preset-env": "^1.7.0",
-    "babel-register": "^6.26.0"
-  }
+  "devDependencies": {}
 }

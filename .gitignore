@@ -2,3 +2,4 @@ log-files/*
 package-lock.json
 .env
 node_modules/**
+logfile.log

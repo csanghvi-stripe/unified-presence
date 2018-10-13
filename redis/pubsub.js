@@ -1,11 +1,13 @@
-import Redis from "ioredis";
+//import Redis from "ioredis";
+var Redis = require('ioredis');
+//var redis = new Redis();
 const host = "localhost";
 const port = 6379;
 const db = 0;
 const subscriber = new Redis({ host, port, db });
 const publisher = new Redis({ host, port, db });
 
-export default new class PubSub {
+module.exports= new class PubSub {
   publish(channel, message) {
     publisher.publish(channel, message);
   }
