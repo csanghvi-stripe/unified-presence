@@ -33,13 +33,13 @@ module.exports = function(app, slackapp, options) {
 
     //Get UserObj from
 
-    slackapp.getUser(event.user.profile.email, function(err, userObj) {
+    slackapp.getUser(event.user.profile.email.toLowerCase(), function(err, userObj) {
       if (err) {
-        logger.debug('An error occurred while saving a user: ', err);
+        logger.debug('An error occurred while saving a user: %s', err);
         slackapp.trigger('error', [err]);
       } else {
         if (!userObj) {
-          logger.debug("This shouldnt have happened. Something is wrong, because every user who changes status, should be found in db ");
+          logger.error("This shouldnt have happened. Something is wrong, because every user who changes status, should be found in db ");
         }
         logger.debug("User found in db: ", userObj);
         userObj.status_expiration = event.user.profile.status_expiration;
@@ -55,11 +55,11 @@ module.exports = function(app, slackapp, options) {
         slackapp.saveUser(userObj, function(err, result) {
 
           if (err) {
-            logger.debug(
+            logger.error(
               'An error occurred while saving a user: ', err);
             slackapp.trigger('error', [err]);
           } else {
-            logger.debug("User Saved with udpated status: ", result);
+            logger.debug("User %s Saved with udpated status: %s", userObj.id, result);
           }
         });
       }
@@ -70,7 +70,27 @@ module.exports = function(app, slackapp, options) {
 
   // Attach listeners to events by Slack Event "type". See: https://api.slack.com/events/message.im
   slackEvents.on('team_join', (event) => {
-    logger.debug(`Received a team_join event: ${event}`);
+    logger.debug(`Received a team_join event: %s`, event);
+        if (event.user.is_bot === false && event.user.id != "USLACKBOT") {
+          let userObj = {
+            slackid: event.user.id,
+            id: event.user.profile.email.toLowerCase(),
+            name: event.user.name,
+            email: event.user.profile.email.toLowerCase(),
+            status_set: false,
+            status_expiration: 0
+          };
+          logger.debug("User Obj is: %s",userObj);
+          //  users.push(userObj);
+          //slackapp.dbclient.set(userObj.email, JSON.stringify(userObj));
+          slackapp.saveUser(userObj, function(err, result) {
+            if (err) {
+              logger.error("Something went wrong in saving user obj", err);
+            } else {
+              logger.debug("User %s saved successfully", userObj.id);
+            }
+          });
+        }
     //As soon as a new user joins the workspace,
     //Take the user and add to database userstore
 

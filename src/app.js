@@ -12,10 +12,13 @@
 //with all meetings for users
 //As part of making a setReminder call, caller will also pass an expire parameter
 //This parameter will be calculated by Caller based on  Meeting Time stamp - current timestamp
-import 'babel-polyfill';
+
+//import 'babel-polyfill';
 //import DBClient from "./redis/dbclient";
-import RedisExpiredEvents from "../redis/redis.expired-events";
-import express from "express";
+//import RedisExpiredEvents from "../redis/redis.expired-events";
+//import express from "express";
+var express = require("express");
+var RedisExpiredEvents = require("../redis/redis.expired-events.js");
 var logger = require('../config/winston');
 
 
@@ -27,8 +30,6 @@ if (process.env.NODE_ENV !== 'production') {
 var redis = require('redis');
 
 
-
-const passport = require('passport');
 
 if (!process.env.SLACK_CLIENT_ID || !process.env.SLACK_CLIENT_SECRET || !process.env.PORT) {
   usage_tip();
@@ -76,25 +77,19 @@ RedisExpiredEvents(slackapp);
 
 
 app.get('/', (req, res) => {
-
-  //const dbclient = new DBClient();
-  let value = {
-    meeting: "Working with Client",
-    startTime: "1539025832",
-    endTime:"1539025862"
-  };
-  slackapp.setCalendar("chintansanghvi5@gmail.com",value,10);
-
   res.send('hello world');
 });
 app.post('/calendar', (req, res) => {
-  var email = req.body.email,
+  var email = req.body.email.toLowerCase(),
       calendarObj = {
+      id:req.body.id,
       details: req.body.details,
       startTime: req.body.start,
       endTime: req.body.end
     };
-  logger.debug("Email:"+ email+"Meeting:"+req.body.details+"Start:"+req.body.start+"End:"+req.body.end );
+  logger.debug("Received Calendar Creation Request for: Email:%s Meeting Start Time: %s, Meeting End Time: %s", email,req.body.start,req.body.end );
+
+  //logger.debug("Email:"+ email+"Meeting:"+req.body.details+"Start:"+req.body.start+"End:"+req.body.end );
 //  logger.info("Meeting: ", req.body.details);
 //  logger.info("Start ", req.body.start);
 //  logger.info("End: ", req.body.end);
@@ -102,9 +97,9 @@ app.post('/calendar', (req, res) => {
 
   slackapp.setCalendar(email,calendarObj,function(err,result){
     if(err){
-      logger.error("Unable to set calenadr:"+err);
+      logger.error("Unable to set calenadr: %s", err);
     }else{
-      logger.debug("Successfully set calendar event:"+ result);
+      logger.debug("Successfully set calendar event %s:", result);
       res.send({ message: 'Hello World' });
     }
   });

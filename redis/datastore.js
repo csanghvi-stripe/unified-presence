@@ -1,5 +1,5 @@
 var logger = require('../config/winston');
-import Redis from "ioredis";
+var Redis = require("ioredis");
 //var redis = require('redis');
 
 module.exports = function(config) {
@@ -43,14 +43,7 @@ module.exports = function(config) {
 function getStorageObj(client, namespace) {
   return {
     get: function(id, cb) {
-      logger.debug("Looking for Object: ", id);
       client.hget(namespace, id, function(err, res) {
-        logger.debug("Res: ", res);
-        if (!res) {
-          logger.debug("Res is null");
-        } else {
-          logger.debug("res is not null");
-        }
         cb(err, res ? JSON.parse(res) : null);
       });
     },
@@ -88,7 +81,6 @@ function getStorageObj(client, namespace) {
 function getCalStorageObj(client, namespace) {
   return {
     setUserCalendar: function(ns, key, value, expire, cb) {
-      logger.debug(ns, key, value, expire);
       client
         .multi()
         .hset(ns, key, JSON.stringify(value))
@@ -98,13 +90,24 @@ function getCalStorageObj(client, namespace) {
           if (err) {
             return cb(err);
           }
-          logger.debug("setCakendar Event response is:", res);
+          cb(err, res ? res : null);
+        });
+
+    },
+    deleteUserCalendar: function(ns, key, value, expire, cb) {
+      client
+        .multi()
+        .hdel(ns, key)
+        .del(`reminder:${ns}:${key}`)
+        .exec(function(err, res) {
+          if (err) {
+            return cb(err);
+          }
           cb(err, res ? res : null);
         });
 
     },
     getUserCalendar: function(ns, key, cb) {
-      logger.debug(ns, key);
       client.hget(ns, key, function(err, res) {
         logger.debug("Res: ", res);
         if (!res) {

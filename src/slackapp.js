@@ -13,6 +13,7 @@ function SlackApp(configuration) {
       teams: {},
     }
   };
+  slackapp.config = configuration;
 
   slackapp.storage = require("../redis/datastore.js")();
 
@@ -21,11 +22,11 @@ function SlackApp(configuration) {
   };
   slackapp.userstore = require("../redis/datastore.js")(config);
   slackapp.findTeamById = function(id, cb) {
-    logger.debug("Find Team by Id"+ id);
+    logger.debug("Find Team by Id %s", id);
     slackapp.storage.teams.get(id, cb);
   };
   slackapp.on = function(event, cb, is_hearing) {
-    logger.debug('Setting up a slackapp for'+ event);
+    logger.debug('Setting up a slackapp for %s', event);
     var events = (typeof(event) == 'string') ? event.split(/\,/g) : event;
 
     for (var e in events) {
@@ -76,17 +77,19 @@ function SlackApp(configuration) {
     }
   };
 
-  slackapp.config = configuration;
+
 
   slackapp.slackclient = function(token) {
     const WebClient = require('@slack/client').WebClient;
     var accesstoken = token || slackapp.config.token;
     const web = new WebClient(accesstoken, {
       // Allow up to 10 requests to be in-flight at a time
-      maxRequestConcurrency: 10,
+      maxRequestConcurrency: 20,
     });
     return web;
   };
+
+
 
   //  slackapp.dbclient = new DBClient();
   slackapp.getUser = function(id, cb) {
@@ -95,7 +98,7 @@ function SlackApp(configuration) {
         logger.error(`An error occurred while saving a user obj:  ${err}`);
         slackapp.trigger('error', [err]);
       } else {
-        logger.debug("User Received from Redis: "+ result);
+        logger.debug("User Received from Redis: %s ", result);
       }
       cb(err, res ? JSON.parse(res) : null);
     });
@@ -104,10 +107,10 @@ function SlackApp(configuration) {
 
     this.userstore.users.save(userObj, function(err, result) {
       if (err) {
-        logger.error('An error occurred while saving a user obj: '+ err);
+        logger.error('An error occurred while saving a user obj: %s', err);
         slackapp.trigger('error', [err]);
       } else {
-        logger.debug("User Saved: "+ result);
+        logger.debug("User %s Saved: %s", userObj.id, result);
       }
     });
   }
@@ -127,34 +130,33 @@ function SlackApp(configuration) {
         };
     */
     let ns = "calendar:" + email;
-    let key = "123";
+    let key = calendarObj.id;
     //expiration is calculated as
     //meeting start time - current time//So if meeting start time is 10AM & Current time is 7AM
     //Then expiration in seconds = 10800seconds
     let expire = calendarObj.startTime - Math.floor(Date.now() / 1000);
-    logger.debug("Expiration is: "+ expire);
+    logger.debug("Expiration is: %s for id: %s", expire, calendarObj.id);
     //let expire = 10;
     //slackapp.dbclient.setReminder(namespace,"123", JSON.stringify(value), 10);
 
     this.driver.calendar.setUserCalendar(ns, key, calendarObj, expire, function(err, res) {
       if (err) {
-        logger.error("Something went wrong in setting reminder"+ err);
-        //cb(err);
+        logger.error("Something went wrong in setting reminder %s", err);
       } else {
         logger.debug("res is: "+ res);
-        //cb(res);
       }
       cb(err, res ? res : null);
 
     });
   }
   slackapp.getCalendar = function(ns, key, cb) {
+    logger.debug("Getting Calendar for %s with id: %s", ns, key);
     this.driver.calendar.getUserCalendar(ns, key, function(err, calendarObj) {
       if (err) {
         logger.error("Something went wrong in setting reminder"+err);
         //cb(err);
       } else {
-        logger.debug("res is: "+calendarObj);
+        logger.debug("res is: %s ", calendarObj);
         //cb(res);
       }
       cb(err, calendarObj ? calendarObj : null);
