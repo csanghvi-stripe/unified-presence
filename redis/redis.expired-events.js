@@ -12,10 +12,10 @@ module.exports = function RedisExpiredEvents(slackapp) {
         {
 
           logger.debug("Reminder Type %s, NS1 %s, NS2 %s, Key %s ", type, ns1, ns2, key);
-          var ns = ns1 + ":" + ns2;
+
           //Fetch Users calendar
 
-          var value = slackapp.getCalendar(ns, key, function(err, calendarObj) {
+          slackapp.getCalendar(ns2, key, function(err, calendarObj) {
             if (err) {
               logger.debug("error is: ", err);
             } else {

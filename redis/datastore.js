@@ -94,7 +94,7 @@ function getCalStorageObj(client, namespace) {
         });
 
     },
-    deleteUserCalendar: function(ns, key, value, expire, cb) {
+    deleteUserCalendar: function(ns, key, cb) {
       client
         .multi()
         .hdel(ns, key)
