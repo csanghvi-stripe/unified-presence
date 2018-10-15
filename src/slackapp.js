@@ -143,17 +143,18 @@ function SlackApp(configuration) {
       if (err) {
         logger.error("Something went wrong in setting reminder %s", err);
       } else {
-        logger.debug("res is: "+ res);
+        logger.debug("res is: " + res);
       }
       cb(err, res ? res : null);
 
     });
   }
-  slackapp.getCalendar = function(ns, key, cb) {
+  slackapp.getCalendar = function(email, key, cb) {
+    var ns = "calendar:"+email;
     logger.debug("Getting Calendar for %s with id: %s", ns, key);
     this.driver.calendar.getUserCalendar(ns, key, function(err, calendarObj) {
       if (err) {
-        logger.error("Something went wrong in setting reminder"+err);
+        logger.error("Something went wrong in setting reminder" + err);
         //cb(err);
       } else {
         logger.debug("res is: %s ", calendarObj);
@@ -164,6 +165,20 @@ function SlackApp(configuration) {
     });
   }
 
+  slackapp.deleteCalendar = function(email, calendarid, cb) {
+
+    let ns = "calendar:" + email;
+
+    this.driver.calendar.deleteUserCalendar(ns, calendarid, function(err, res) {
+      if (err) {
+        logger.error("Something went wrong in deleting calendar %s", err);
+      } else {
+        logger.debug("res is: " + res);
+      }
+      cb(err, res ? res : null);
+
+    });
+  }
 
 
   return slackapp;
